@@ -2,6 +2,7 @@ import * as React from 'react';
 import {  Menu, Dropdown, Icon } from "antd";
 import axios from 'src/config/axios'
 import Todos from 'src/components/todos/todos'
+import history from 'src/config/history'
 import  './Index.scss'
 
 interface IRouter {
@@ -10,6 +11,16 @@ interface IRouter {
 interface IIndexState {
     user: any;
 }
+const logout = ()=>{
+	localStorage.setItem('x-token','')
+	history.push('/login')
+}
+const menu = (
+    <Menu>
+        <Menu.Item key="1"><Icon type="user" />个人设置</Menu.Item>
+        <Menu.Item key="2" onClick={logout}><Icon type="logout" />注销</Menu.Item>
+    </Menu>
+);
 class Index extends React.Component<IRouter,IIndexState> {
 
 	constructor(props: any){
@@ -18,53 +29,30 @@ class Index extends React.Component<IRouter,IIndexState> {
 			user:{}
 		}
 	}
-	async componentWillMount (){
+	async componentDidMount (){
 		await this.getMe()
 	}
 	getMe = async()=>{
 		const response = await axios.get('me')
         this.setState({user: response.data})
 	}
-	loginOut = ()=>{
-		localStorage.setItem('x-token','')
-		this.props.history.push('/login')
-	}
+
 
 	render() {
-        const menu = (
-            <Menu>
-                <Menu.Item>
-                    <a target="_blank" rel="noopener noreferrer" href="http://www.alipay.com/">
-                        1st menu item
-                    </a>
-                </Menu.Item>
-                <Menu.Item>
-                    <a target="_blank" rel="noopener noreferrer" href="http://www.taobao.com/">
-                        2nd menu item
-                    </a>
-                </Menu.Item>
-                <Menu.Item>
-                    <a target="_blank" rel="noopener noreferrer" href="http://www.tmall.com/">
-                        3rd menu item
-                    </a>
-                </Menu.Item>
-            </Menu>
-        );
 		return (
 			<div className="Index" id="Index">
-				{/*<p>欢迎回来，{this.state.user && this.state.user.account}</p>*/}
-				{/*<Button onClick={this.loginOut}>注销</Button>*/}
 				<header>
 					<div className="logo">logo</div>
                     <Dropdown overlay={menu}>
-                        <a className="ant-dropdown-link" href="#">
-                            {this.state.user && this.state.user.account} <Icon type="down" />
-                        </a>
+                        <span>
+                            {this.state.user && this.state.user.account}
+                            <Icon type="down" style={{marginLeft:8}}/>
+                        </span>
                     </Dropdown>
 				</header>
-				<div className="todo">
+				<main>
 					<Todos/>
-				</div>
+				</main>
 			</div>
 		);
 	}
