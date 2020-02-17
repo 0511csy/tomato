@@ -2,14 +2,18 @@ import * as React from 'react';
 import {Checkbox,Icon} from "antd"
 import classNames from "classnames"
 import "./todosItem.scss"
+import {connect} from "react-redux"
+import {editTodo,updateTodo} from "../../redux/actions";
+import axios from 'src/config/axios';
+
 
 interface ITodoItemProps{
     id:number;
     description:string;
     completed: boolean;
     editing: boolean;
-    update:(id:number,params:any)=> void;
-    toEditing:(id:number)=>void;
+    updateTodo:(payload:any)=> any;
+    editTodo:(payload:number)=>any;
 }
 interface ITodoItemState{
     editText:string;
@@ -21,11 +25,16 @@ class TodoItem extends React.Component<ITodoItemProps,ITodoItemState> {
             editText:this.props.description
         }
     }
-    update = (params:any)=>{
-        this.props.update(this.props.id  ,params)
+    update = async(params:any)=>{
+        try{
+            const response = await axios.put(`todos/${this.props.id}`,params)
+            this.props.updateTodo(response.data.resource)
+            }catch(e){
+                throw new Error(e)
+            }
     }
     toEditing = ()=>{
-        this.props.toEditing(this.props.id)
+        this.props.editTodo(this.props.id)
     }
 
     onKeyUp = (e)=>{
@@ -62,7 +71,12 @@ class TodoItem extends React.Component<ITodoItemProps,ITodoItemState> {
         );
     }
 }
+const mapStateToProps = (state,OwnProps) => ({
+    ...OwnProps
+})
+const mapDispatchToProps = {
+    updateTodo,
+    editTodo
+}
 
-
-
-export default TodoItem;
+export default connect(mapStateToProps,mapDispatchToProps)(TodoItem);
